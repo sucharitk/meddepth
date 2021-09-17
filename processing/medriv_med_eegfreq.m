@@ -25,6 +25,7 @@ fs = 250;
 
 freqpow_subj = cell(nsubj, nblocks);
 timefrend_subj = cell(nsubj, nblocks);
+timefrbeg_subj = cell(nsubj, nblocks);
 paf_subj = cell(nsubj, nblocks);
 pafsnr_subj = paf_subj;
 rrate_subj = cell(nsubj, nblocks);
@@ -45,7 +46,10 @@ for ns = start_subj:nsubj
             group_n(subj_data.group) = group_n(subj_data.group)+1;
             
             fprintf('\nanalyzing subject %g\n', subj_data.subj_code)
-            load(['Epochs/' filename])
+            epload = load(['Epochs/' filename]);
+            epochs = epload.epochs;
+            artif = epload.artif;
+            chanlocs = epload.chanlocs;
             
             if ~exist('chanlab32', 'var')
                 
@@ -87,7 +91,7 @@ for ns = start_subj:nsubj
             end
             
             fprintf('block number: ')
-            for bn = 1:nblocks
+            parfor bn = 1:nblocks
                 fprintf('%g ',bn)
                 nb = blks_to_an(bn);
 
@@ -99,7 +103,8 @@ for ns = start_subj:nsubj
                     end
                     
                     if windowsize>0
-                        [epout, timefrend] = break_epochs_withoverlap(valid_epoch, fs, ...
+                        [epout, timefrend, timefrbeg] = ...
+                            break_epochs_withoverlap(valid_epoch, fs, ...
                             windowsize, noverlap);
                     else
                         if bn==1
@@ -183,6 +188,7 @@ for ns = start_subj:nsubj
                     hrate_subj{ns, bn} = hr2;
                     hrv_subj{ns, bn} = hrv2;
                     timefrend_subj{ns, bn} = timefrend;
+                    timefrbeg_subj{ns, bn} = timefrbeg(:,2);
                 else
                     fprintf('err')
                 end
@@ -205,6 +211,7 @@ all_group = [];
 all_subj = [];
 all_chans = [];
 all_yearspract = [];
+all_hourspract = [];
 all_quest1 = [];
 all_quest2 = [];
 all_quest3 = [];
@@ -218,27 +225,31 @@ all_btime = [];
 all_scode = [];
 all_timefrend1 = [];
 all_timefrend2 = [];
+all_timefrbeg = [];
 all_paf = [];
 all_pafsnr = [];
 all_medi = [];
+all_age = [];
 
+age = [exp_medriv.data.subj_age];
 group = [exp_medriv.data.group];
 scode = [exp_medriv.data.subj_code];
 subj_data = [exp_medriv.data];
 years = [subj_data.years_practice];
+hours = [subj_data.hours_practice];
 % pafqual = [subj_data.paf_quality_med];
 
 questresp = [subj_data.questresp];
-questresp = reshape(questresp, [4 14 35]);
+questresp = reshape(questresp, [4 14 nsubj]);
 questclust = exp_medriv.questclust;
 nclust = max(questclust);
-clustq = NaN(nclust, 4, 35);
+clustq = NaN(nclust, 4, nsubj);
 for cq = 1:nclust
     clustq(cq, :, :) = nanmean(questresp(:, questclust==cq, :), 2);
 end
 
 medi = [subj_data.medi];
-medi = reshape(medi, [4 35]);
+medi = reshape(medi, [4 nsubj]);
 
 
 nbchan = 32;
@@ -287,6 +298,9 @@ for ns = 1:nsubj
             ps = repmat(group(ns), [neps nbchan]);
             all_group = [all_group; ps(:)];
             
+            ps = repmat(age(ns), [neps nbchan]);
+            all_age = [all_age; ps(:)];
+            
             ps = repmat(scode(ns), [neps nbchan]);
             all_scode = [all_scode; ps(:)];
 
@@ -304,8 +318,14 @@ for ns = 1:nsubj
             ps2 = ps(:,:,2);
             all_timefrend2 = [all_timefrend2; ps2(:)];
             
+            ps = timefrbeg_subj{ns,nb};
+            ps = permute(repmat(ps, [1 1 nbchan]), [1 3 2]);
+            all_timefrbeg = [all_timefrbeg; ps(:)];
+
             ps = repmat(years(ns), [neps nbchan]);
             all_yearspract = [all_yearspract; ps(:)];
+            ps = repmat(hours(ns), [neps nbchan]);
+            all_hourspract = [all_hourspract; ps(:)];
             
             ps = repmat(clustq(1,nb,ns), [neps nbchan]);
             all_quest1 = [all_quest1 ;ps(:)];
@@ -332,17 +352,19 @@ end
 dr = double([all_theta, all_alpha, all_beta, all_gamma,...
     all_rrate, all_iqrr, all_hrate, all_hrv, all_block,...
     all_group, all_subj, all_chans, all_medi, all_paf, all_pafsnr, ...
-    all_quest1, all_quest2, all_quest3, all_quest4, all_quest5,...
-    all_yearspract, all_btime, all_scode, all_timefrend1, all_timefrend2]);
+    all_quest1, all_quest2, all_quest3, all_quest4, all_quest5, all_hourspract...
+    all_yearspract, all_btime, all_scode, all_timefrend1, all_timefrend2,...
+    all_timefrbeg, all_age]);
 
 oufilename = [filename '_freqs_' powmethname{powmeth} '_' num2str(windowsize) '.csv'];
 csvwrite(oufilename, dr)
 
 header_text = 'theta,alpha,beta,gamma,rrate,iqrr,hrate,hrv,block,group,';
-header_text = [header_text 'subj,chans,medi,paf,pafsnr,q1,q2,q3,q4,q5,yearspract,time,'];
-header_text = [header_text 'subjcode,timefrend1,timefrend2'];
+header_text = [header_text 'subj,chans,medi,paf,pafsnr,q1,q2,q3,q4,q5,hourspract,yearspract,time,'];
+header_text = [header_text 'subjcode,timefrend1,timefrend2,timefrbeg,age'];
 
 add_header_csv(oufilename, header_text)
 
+fprintf('saved %s\n', oufilename)
 end
 
