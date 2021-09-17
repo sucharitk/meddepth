@@ -10,8 +10,8 @@ directory structure
 
 'processing' contains matlab code for processing the minimally pre-processed data. the main script is meddepth_analysis.m, which calls all the other files in the directory 
 
-'stats' contains the R code for doing the analysis and figures in the paper 
+'helper' contains additional .m files called by the matlab code\
 
-'helper' contains additional .m files called by the matlab code
+code for performing statistical analysis and generating figures along with postprocessed data is available on the OSF page https://osf.io/sfkte/
 
-supplementary data including audios for guided meditations and the baseline block used in the study are available at https://osf.io/sfkte/
+supplementary data including audios for guided meditations and the baseline block used in the study are also available at the OSF page
