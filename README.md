@@ -3,7 +3,7 @@
 processing pipeline and statistical analysis code for the project on subjective experience of meditation depth (Meditation depth questionnaire) in long-term meditators and matched control participants along with EEG, heart and respiration data
 
 
-Katyal, S., & Goldin, P. (2021). Alpha and theta oscillations are inversely related to progressive levels of meditation depth. Neuroscience of Consciousness, 2021(1), niab042. https://doi.org/10.1093/nc/niab042
+Katyal, S., & Goldin, P. (2021). Alpha and theta oscillations are inversely related to progressive levels of meditation depth. _Neuroscience of Consciousness_, 2021(1), niab042. https://doi.org/10.1093/nc/niab042
 
 
 
