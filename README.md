@@ -2,8 +2,9 @@
 
 processing pipeline and statistical analysis code for the project on subjective experience of meditation depth (Meditation depth questionnaire) in long-term meditators and matched control participants along with EEG, heart and respiration data
 
-preprint available at:
-Katyal, S., & Goldin, P. (2020, October 12). Alpha and theta brain oscillations play a complementary role in inducing levels of altered consciousness during meditation practice. PsyArXiv. https://doi.org/10.31234/osf.io/hezfd
+
+Katyal, S., & Goldin, P. (2021). Alpha and theta oscillations are inversely related to progressive levels of meditation depth. Neuroscience of Consciousness, 2021(1), niab042. https://doi.org/10.1093/nc/niab042
+
 
 
 directory structure
